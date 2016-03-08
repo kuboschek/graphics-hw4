@@ -27,16 +27,8 @@ namespace March {
                             zo + mc_vertices[vertex][2]);
   }
 
-
-  std::vector<Triangle> marchCube(int xo, int yo, int zo, int isovalue) {
-    // Output vector of triangles
-    std::vector<Triangle> out;
-
-    // Marching cubes case
+  int getMarchCase(int xo, int yo, int zo, int isovalue) {
     char mc_case;
-
-    // Offset of the intersection on any of the 12 edges
-    float intersect[12];
 
     // Iterate through all vertices of this cell
     for(int i = 0; i < sizeof(mc_vertices) / sizeof(int); i++) {
@@ -46,6 +38,20 @@ namespace March {
         CBI(mc_case, i);
       }
     }
+
+    return mc_case;
+  }
+
+
+  std::vector<Triangle> marchCube(int xo, int yo, int zo, int isovalue) {
+    // Output vector of triangles
+    std::vector<Triangle> out;
+
+    // Marching cubes case
+    char mc_case = getMarchCase(xo,yo,zo,isovalue);
+
+    // Offset of the intersection on any of the 12 edges
+    float intersect[12];
 
     // Iterate through all edges to compute intersection points
     for(int i = 0; i < sizeof(mc_edges) / sizeof(int); i++) {
@@ -60,35 +66,65 @@ namespace March {
       }
     }
 
+    int pointCtr = 0;
+
     // Build triangles
     for(int i = 0; i < 16; i += 3) {
-      // Special value -1 is used to signify end of triangle list
-      if(mc_cases[mc_case][i] == -1)
+      if(mc_cases[mc_case][i] == -1) // Magic value -1: End of list
         break;
+
+      int pointCtr = 0; // The point in the triangle that we are on
+      Triangle t;       // The triangle we're going to add to the soup
 
       // Iterate through all 3 edges, set triangle points
       for(int j = 0; j < 3; j++) {
         int edge = mc_cases[mc_case][i + j];
 
         // Get vertex numbers of edge
-        int v1 = mc_edges[i + j][0];
-        int v2 = mc_edges[i + j][1];
+        int v1 = mc_edges[edge][0];
+        int v2 = mc_edges[edge][1];
 
-        // Get offsets for vertex
+        // Get local coordinates for vertex
+        int* p1 = mc_vertices[v1];
+        int* p2 = mc_vertices[v2];
+
+        float point[3] = {
+          xo + p1[0],
+          yo + p1[1],
+          zo + p1[2],
+        };
+
         // position = base cell coordinates + local vertex coordinates
-
         // add the computed intersection value to one of the positions
+        for(int k = 0; k < 3; k++) {
+          if(p1[k] != p2[k]) {
+            point[k] += intersect[edge];
+            break;
+          }
+        }
 
-      }
+        // Add point to triangle
+        switch (j) {
+          case 0:
+            std::copy(point, point + 3, t.p1);
+            break;
 
-      // TODO Find vertices corresponding to
+          case 1:
+            std::copy(point, point + 3, t.p2);
+            break;
 
+          case 2:
+            std::copy(point, point + 3, t.p3);
+            break;
+        }
+      } // Triangle builder - for j
 
-      Triangle t;
+      // Add triangle to output soup
+      out.push_back(t);
 
-      t.p1
-    }
-
+    } // Cube marcher - for i
 
   }
+
+  return out;
 }
