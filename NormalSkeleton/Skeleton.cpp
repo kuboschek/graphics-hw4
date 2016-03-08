@@ -6,11 +6,14 @@
 #include "OpenglSkeleton.h"
 #include <iostream>
 
+#include "Volume.h"
+#include "March.h"
+
 
 // Same as on frame work 1
 void keypress(unsigned char key, int x, int y){
 
-  
+
 }
 
 int main(int argc, char** argv){
@@ -19,18 +22,17 @@ int main(int argc, char** argv){
    unsigned int width, height, depth, components;
    float scalex, scaley, scalez;
    unsigned char* volumeData = readPVMvolume(argv[1], &width, &height, &depth, &components, &scalex, &scaley, &scalez);
-  
+
    OpenGLSkeleton::Initialize(argc, argv);
-   
+
    OpenGLSkeleton::SetKeyboardInteraction(&keypress);
-   
-   std::vector<OpenGLSkeleton::Triangle> triangles;
-   
-    
+
+   std::vector<Triangle> triangles;
+
+
    OpenGLSkeleton::SetSurface(&triangles);
-   
+
    OpenGLSkeleton::Run();
 
-   // OpenGLSkeleton::Redraw() can be called to force a redraw.     
+   // OpenGLSkeleton::Redraw() can be called to force a redraw.
 }
-

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 
+#include "Triangle.h"
 
 
 //////////////////////////////////////////
@@ -17,21 +18,6 @@ namespace OpenGLSkeleton {
     // by converting spherical coordinates to cartesian coordinates.
     float rho=2.0f, phi=0.01, theta=0.01;
 
-    // laziest Triangle implementation 
-    // not even set/gets.. modify as you see fit.
-    // just containing the points and the normals associated to them.
-    class Triangle {
-	 public:
-		float p1[3];
- 	        float n1[3];
-
-		float p2[3];
- 	        float n2[3];
-
-		float p3[3];
- 	        float n3[3];
-    };
-    
 
     std::vector<Triangle> surface;
     int lightScale = 10;
@@ -75,7 +61,7 @@ namespace OpenGLSkeleton {
         keyboardInteraction = func;
     }
 
-   
+
     void display(void)
     {
 	    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -95,7 +81,7 @@ namespace OpenGLSkeleton {
 
 	    glBegin(GL_TRIANGLES);
 	    for(unsigned int i = 0; i < surface.size();i++)
-	    {            
+	    {
 		      Triangle t = surface.at(i);
 		      glNormal3fv(t.n1);
 		      glVertex3fv(t.p1);
@@ -103,12 +89,12 @@ namespace OpenGLSkeleton {
 		      glVertex3fv(t.p2);
 		      glNormal3fv(t.n3);
 		      glVertex3fv(t.p3);
-	
+
 	    }
 	    glEnd();
 	    glutSwapBuffers();
    }
-    
+
 
    void keyPress(unsigned char key, int x, int y){
 
@@ -117,7 +103,7 @@ namespace OpenGLSkeleton {
         display();
     }
 
-    
+
     void otherkeys(int key, int x, int y){
          switch(key){
                case GLUT_KEY_LEFT:theta+=0.1f; break;
@@ -127,9 +113,9 @@ namespace OpenGLSkeleton {
 	       case GLUT_KEY_PAGE_UP:  rho-=0.3f; break;
 	       case GLUT_KEY_PAGE_DOWN:  rho+=0.3f; break;
          }
-         
+
          // Keep the spherical coordinates in the 0 < x < 2*pi range
-         if ( rho < 0.1 ) rho = 0.1; 
+         if ( rho < 0.1 ) rho = 0.1;
          if ( theta > 2*3.14159 ) theta -= 2*3.14159;
          if ( theta < 0 ) theta += 2*3.14159;
          if ( phi > 2*3.14159 ) phi -= 2*3.14159;
@@ -147,7 +133,7 @@ namespace OpenGLSkeleton {
        glMatrixMode(GL_MODELVIEW);
        glLoadIdentity();
    }
-   
+
    void SetSurface(std::vector<Triangle>* marchingCubesResult){
       surface.clear();
       for(unsigned int i = 0; i < marchingCubesResult->size(); i++)
@@ -158,7 +144,7 @@ namespace OpenGLSkeleton {
    void Redraw(){
       display();
    }
-   
+
    void Run(){
       glClearColor (0.7, 0.7, 0.7, 0.0);
       glShadeModel(GL_SMOOTH);
