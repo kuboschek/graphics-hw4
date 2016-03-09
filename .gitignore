@@ -11,3 +11,5 @@ CMakeFiles
 
 *.h.gch
 Skeleton
+
+*.pvm
