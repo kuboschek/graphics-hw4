@@ -1,7 +1,18 @@
 //nclude <GL/gl.h>
+
+#ifndef __APPLE__
+
 #include <GL/glu.h>
 #include <GL/freeglut.h>
 #include <GL/glut.h>
+
+#else
+
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
+
+#endif
+
 #include <iostream>
 #include <vector>
 
@@ -20,7 +31,7 @@ namespace OpenGLSkeleton {
 
 
     std::vector<Triangle> surface;
-    int lightScale = 10;
+    int lightScale = 50;
 
     // How far away the light is located from the origin...
     void ChangeLightScale(int value){ lightScale = value; }
