@@ -13,3 +13,7 @@ CMakeFiles
 Skeleton
 
 *.pvm
+
+.idea/
+
+/CMakeLists.txt
