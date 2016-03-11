@@ -16,15 +16,6 @@
 #define CUTOFF 0.00001
 
 namespace March {
-    bool isEdgeVertex(int x, int y, int z) {
-        return x == Volume::width ||
-               y == Volume::height ||
-               z == Volume::depth ||
-               x == 0 ||
-               y == 0 ||
-               z == 0;
-    }
-
     float calcIntersectionOffset(float isovalue, int fi, int fj) {
         if (fabs(fi - fj) < CUTOFF)
             return 0.5;
@@ -76,7 +67,7 @@ namespace March {
         float intersect[12] = {0};
 
         // Gradients at each vertex
-        float gradient[12]
+        float gradient[8][3] = {0};
 
         // Iterate through all edges to compute intersection points
         for (int i = 0; i < sizeof(mc_edges[0]) / sizeof(int); i++) {
@@ -88,6 +79,42 @@ namespace March {
                 int fj = getCubePoint(xo, yo, zo, v1);
 
                 intersect[i] = calcIntersectionOffset(isovalue, fi, fj);
+            }
+        }
+
+        // Delta {x,y,z} for differencing
+        int d = 1;
+
+        // Generate gradients at each vertex
+        for (int i = 0; i < sizeof(mc_vertices) / sizeof(mc_vertices[0]); ++i) {
+            // Base coordinates
+            int b[3] = {xo, yo, zo};
+
+            // Bounds of the volume
+            int max[3] = {Volume::width, Volume::height, Volume::depth};
+
+            for (int j = 0; j < 3; ++j) {
+                int v = b[i] + mc_vertices[i][j];
+
+                int m[3] = {j == 0, j == 1, j == 2};
+
+                if(v != 0 && v != max[j]) {
+                    // Central differencing
+                    gradient[i][j] = Volume::getPoint(xo + m[j] * d, yo + m[j] * d, zo + m[j] * d) +
+                            Volume::getPoint(xo - m[j] * d, yo - m[j] * d, zo - m[j] * d);
+
+                    gradient[i][j] /= (2 * d);
+                } else if(v == 0) {
+                    // Forward differencing
+                    gradient[i][j] = (Volume::getPoint(xo + m[j] * d, yo + m[j] * d, zo + m[j] * d) -
+                            Volume::getPoint(xo,yo,zo))
+                                     / d;
+                } else {
+                    // Backward differencing
+                    gradient[i][j] = (Volume::getPoint(xo,yo,zo) -
+                            Volume::getPoint(xo - m[j] * d, yo - m[j] * d, zo - m[j] * d))
+                                     / d;
+                }
             }
         }
 
