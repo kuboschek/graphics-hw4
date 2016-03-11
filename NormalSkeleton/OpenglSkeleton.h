@@ -27,7 +27,7 @@ namespace OpenGLSkeleton {
     // In order to achieve rotation and zooming
     // we move the camera around, this is moved
     // by converting spherical coordinates to cartesian coordinates.
-    float rho = 2.0f, phi = 0.01, theta = 0.01;
+    float rho = 32.0f, phi = 0.01, theta = 0.01;
 
 
     std::vector<Triangle> surface;
@@ -130,10 +130,10 @@ namespace OpenGLSkeleton {
                 phi -= 0.1f;
                 break;
             case GLUT_KEY_PAGE_UP:
-                rho -= 0.3f;
+                rho -= 2.3f;
                 break;
             case GLUT_KEY_PAGE_DOWN:
-                rho += 0.3f;
+                rho += 2.3f;
                 break;
         }
 
