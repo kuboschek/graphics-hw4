@@ -15,6 +15,9 @@ float isovalue = 0;
 // If true, shifts mesh to be centered around origin
 bool shifting = false;
 
+// If true, negate normals
+bool negating = false;
+
 // Triangle soup stored here
 std::vector<Triangle> triangles;
 
@@ -39,6 +42,20 @@ void shift(Triangle& t) {
     t.p3[2] -= d2;
 }
 
+void negNormals(Triangle& t) {
+    t.n1[0] *= -1;
+    t.n1[1] *= -1;
+    t.n1[2] *= -1;
+
+    t.n2[0] *= -1;
+    t.n2[1] *= -1;
+    t.n2[2] *= -1;
+
+    t.n3[0] *= -1;
+    t.n3[1] *= -1;
+    t.n3[2] *= -1;
+}
+
 void marchAllTheCubes(float isoval) {
     // Clear old soup -- so inefficient, caching is much better
     triangles.clear();
@@ -60,6 +77,15 @@ void marchAllTheCubes(float isoval) {
             shift(triangles[l]);
         }
     }
+
+    if(negating) {
+        // Offset triangles
+        for (int l = 0; l < triangles.size(); ++l) {
+            // Subtract half of xyz-ranges from each point
+            negNormals(triangles[l]);
+        }
+    }
+
 
     OpenGLSkeleton::SetSurface(&triangles);
 }
@@ -94,6 +120,11 @@ void keypress(unsigned char key, int x, int y) {
         case 's':
             shifting = !shifting;
             break;
+
+        case 'n':
+            negating = !negating;
+            break;
+
     }
 
     if (isovalue < 0)
