@@ -6,14 +6,14 @@
 // just containing the points and the normals associated to them.
 class Triangle {
 public:
-float p1[3];
-float n1[3];
+    float p1[3];
+    float n1[3];
 
-float p2[3];
-float n2[3];
+    float p2[3];
+    float n2[3];
 
-float p3[3];
-float n3[3];
+    float p3[3];
+    float n3[3];
 };
 
 #endif

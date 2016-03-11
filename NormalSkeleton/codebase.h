@@ -26,8 +26,11 @@
 #endif
 
 #include <time.h>
+
 #ifdef UNIX
+
 #include <sys/time.h>
+
 #endif
 #ifdef WINOS
 #define NOMINMAX
@@ -36,8 +39,10 @@
 #endif
 
 #ifdef UNIX
+
 #include <sys/types.h>
 #include <sys/stat.h>
+
 #endif
 
 #ifndef NULL
@@ -55,11 +60,10 @@
 
 #define ERRORMSG() errormsg(__FILE__,__LINE__)
 
-inline void errormsg(const char *file,int line)
-   {
-   fprintf(stderr,"fatal error in <%s> at line %d!\n",file,line);
-   exit(EXIT_FAILURE);
-   }
+inline void errormsg(const char *file, int line) {
+    fprintf(stderr, "fatal error in <%s> at line %d!\n", file, line);
+    exit(EXIT_FAILURE);
+}
 
 #define PI (3.141593f)
 #define RAD (PI/180.0f)
@@ -74,19 +78,25 @@ inline void errormsg(const char *file,int line)
 #define fceil(x) ceil((double)(x))
 #define ftrc(x) (int)ffloor(x)
 
-inline double FABS(const double x) {return((x<0.0)?-x:x);}
+inline double FABS(const double x) { return ((x < 0.0) ? -x : x); }
+
 #define fabs(x) FABS(x)
 
-inline int min(const int a,const int b) {return((a<b)?a:b);}
-inline double FMIN(const double a,const double b) {return((a<b)?a:b);}
-#define fmin(a,b) FMIN(a,b)
+inline int min(const int a, const int b) { return ((a < b) ? a : b); }
 
-inline int max(const int a,const int b) {return((a>b)?a:b);}
-inline double FMAX(const double a,const double b) {return((a>b)?a:b);}
-#define fmax(a,b) FMAX(a,b)
+inline double FMIN(const double a, const double b) { return ((a < b) ? a : b); }
 
-inline int sqr(const int x) {return(x*x);}
-inline double fsqr(const double x) {return(x*x);}
+#define fmin(a, b) FMIN(a,b)
+
+inline int max(const int a, const int b) { return ((a > b) ? a : b); }
+
+inline double FMAX(const double a, const double b) { return ((a > b) ? a : b); }
+
+#define fmax(a, b) FMAX(a,b)
+
+inline int sqr(const int x) { return (x * x); }
+
+inline double fsqr(const double x) { return (x * x); }
 
 #undef fsqrt
 #define fsqrt(x) sqrt((double)(x))
@@ -110,7 +120,7 @@ inline double fsqr(const double x) {return(x*x);}
 #undef flog
 #define flog(x) log((double)(x))
 #undef fpow
-#define fpow(x,y) pow((double)(x),(double)(y))
+#define fpow(x, y) pow((double)(x),(double)(y))
 
 #ifdef UNIX
 #define GETRANDOM() drand48()
@@ -119,75 +129,69 @@ inline double fsqr(const double x) {return(x*x);}
 #define GETRANDOM() ((double)rand()/RAND_MAX)
 #endif
 
-inline double GETTIME()
-   {
+inline double GETTIME() {
 #ifdef UNIX
-   struct timeval t;
-   gettimeofday(&t,NULL);
-   return(t.tv_sec+t.tv_usec/1.0E6);
+    struct timeval t;
+    gettimeofday(&t, NULL);
+    return (t.tv_sec + t.tv_usec / 1.0E6);
 #endif
 #ifdef WINOS
-   static int cpus=0;
-   if (cpus==0)
-      {
-      SYSTEM_INFO SystemInfo;
-      GetSystemInfo(&SystemInfo);
-      cpus=SystemInfo.dwNumberOfProcessors;
-      }
-   if (cpus==1)
-      {
-      LARGE_INTEGER freq,count;
-      if (QueryPerformanceFrequency(&freq)==0) ERRORMSG();
-      QueryPerformanceCounter(&count);
-      return((double)count.QuadPart/freq.QuadPart);
-      }
-   return((double)clock()/CLOCKS_PER_SEC);
+    static int cpus=0;
+    if (cpus==0)
+       {
+       SYSTEM_INFO SystemInfo;
+       GetSystemInfo(&SystemInfo);
+       cpus=SystemInfo.dwNumberOfProcessors;
+       }
+    if (cpus==1)
+       {
+       LARGE_INTEGER freq,count;
+       if (QueryPerformanceFrequency(&freq)==0) ERRORMSG();
+       QueryPerformanceCounter(&count);
+       return((double)count.QuadPart/freq.QuadPart);
+       }
+    return((double)clock()/CLOCKS_PER_SEC);
 #endif
-   }
+}
 
-inline double gettime()
-   {
-   static double time;
-   static BOOLINT settime=FALSE;
+inline double gettime() {
+    static double time;
+    static BOOLINT settime = FALSE;
 
-   if (!settime)
-      {
-      time=GETTIME();
-      settime=TRUE;
-      }
+    if (!settime) {
+        time = GETTIME();
+        settime = TRUE;
+    }
 
-   return(GETTIME()-time);
-   }
+    return (GETTIME() - time);
+}
 
-inline void waitfor(double secs)
-   {
-   if (secs<=0.0) return;
+inline void waitfor(double secs) {
+    if (secs <= 0.0) return;
 #ifdef UNIX
-   struct timespec dt,rt;
-   dt.tv_sec=ftrc(secs);
-   dt.tv_nsec=ftrc(1.0E9*(secs-ftrc(secs)));
-   while (nanosleep(&dt,&rt)!=0) dt=rt;
+    struct timespec dt, rt;
+    dt.tv_sec = ftrc(secs);
+    dt.tv_nsec = ftrc(1.0E9 * (secs - ftrc(secs)));
+    while (nanosleep(&dt, &rt) != 0) dt = rt;
 #else
-   double time=gettime()+secs;
-   while (gettime()<time);
+    double time=gettime()+secs;
+    while (gettime()<time);
 #endif
-   }
+}
 
-inline double getclockticks()
-   {
-   static double clockticks;
-   static BOOLINT setclockticks=FALSE;
+inline double getclockticks() {
+    static double clockticks;
+    static BOOLINT setclockticks = FALSE;
 
-   if (!setclockticks)
-      {
-      double time=gettime();
-      while (time==gettime());
-      clockticks=1.0/(gettime()-time);
-      setclockticks=TRUE;
-      }
+    if (!setclockticks) {
+        double time = gettime();
+        while (time == gettime());
+        clockticks = 1.0 / (gettime() - time);
+        setclockticks = TRUE;
+    }
 
-   return(clockticks);
-   }
+    return (clockticks);
+}
 
 #ifdef WINOS
 
@@ -225,21 +229,20 @@ inline char *strcasestr(const char *str1,const char *str2)
 
 #endif
 
-inline char *strdup2(const char *str1,const char *str2)
-   {
-   char *str;
+inline char *strdup2(const char *str1, const char *str2) {
+    char *str;
 
-   if (str1==NULL && str2==NULL) return(NULL);
+    if (str1 == NULL && str2 == NULL) return (NULL);
 
-   if (str1==NULL) return(strdup(str2));
-   if (str2==NULL) return(strdup(str1));
+    if (str1 == NULL) return (strdup(str2));
+    if (str2 == NULL) return (strdup(str1));
 
-   if ((str=(char *)malloc(strlen(str1)+strlen(str2)+1))==NULL) ERRORMSG();
+    if ((str = (char *) malloc(strlen(str1) + strlen(str2) + 1)) == NULL) ERRORMSG();
 
-   memcpy(str,str1,strlen(str1));
-   memcpy(str+strlen(str1),str2,strlen(str2)+1);
+    memcpy(str, str1, strlen(str1));
+    memcpy(str + strlen(str1), str2, strlen(str2) + 1);
 
-   return(str);
-   }
+    return (str);
+}
 
 #endif

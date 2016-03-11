@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 2.8)
 
-project(Skeleton)
+project(MarchingCubes)
 
 add_definitions(-Wno-deprecated)
 
-find_package( OpenGL REQUIRED)
-find_package( GLUT REQUIRED)
+find_package(OpenGL REQUIRED)
+find_package(GLUT REQUIRED)
 
-add_executable( Skeleton OpenglSkeleton.h Skeleton.cpp ddsbase.cpp )
+add_executable(MarchingCubes OpenglSkeleton.h MarchingCubes.cpp ddsbase.cpp)
 
-target_link_libraries( Skeleton ${OPENGL_LIBRARIES} ${GLUT_LIBRARY}   )
+target_link_libraries(MarchingCubes ${OPENGL_LIBRARIES} ${GLUT_LIBRARY})
