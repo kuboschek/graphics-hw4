@@ -1,8 +1,7 @@
 # AdvVis HW4 Solution
 
-# Known Issues
-
-* Some cases of marching cubes seem to yield gaps in the mesh
+Author: Leonhard Kuboschek
+Date: 11.03.2016
 
 # Build
 

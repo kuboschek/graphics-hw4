@@ -18,4 +18,4 @@ Skeleton
 .idea/
 
 /CMakeLists.txt
-bin/*
+**/bin/*

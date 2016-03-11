@@ -22,7 +22,7 @@ namespace March {
 
     float calcIntersectionOffset(float isovalue, int fi, int fj) {
         if (fabs(fi - fj) < CUTOFF)
-            return 0;
+            return 0.5;
 
         return (float) (fi - isovalue) / (fi - fj);
     }
