@@ -16,25 +16,19 @@
 #define CUTOFF 0.00001
 
 namespace March {
+    const static int X = 0;
+    const static int Y = 1;
+    const static int Z = 2;
+
     float calcIntersectionOffset(float isovalue, int fi, int fj) {
         if (fabs(fi - fj) < CUTOFF)
-            return 0.5;
-
-        if (fabs(isovalue - fi) < CUTOFF)
             return 0;
-
-        if (fabs(isovalue - fj) < CUTOFF)
-            return 1;
 
         return (float) (fi - isovalue) / (fi - fj);
     }
 
     // Only allow numerical types in this template
-    template<
-            typename T,
-            typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type
-    >
-    T linInterp(T i, T j, float offset) {
+    float linInterp(float i, float j, float offset) {
         return i * (1 - offset) + j * offset;
     }
 
@@ -42,9 +36,9 @@ namespace March {
         if (vertex > 7)
             return -1;
 
-        return Volume::getPoint(xo + mc_vertices[vertex][0],
-                                yo + mc_vertices[vertex][1],
-                                zo + mc_vertices[vertex][2]);
+        return Volume::getPoint(xo + mc_vertices[vertex][X],
+                                yo + mc_vertices[vertex][Y],
+                                zo + mc_vertices[vertex][Z]);
     }
 
     int getMarchCase(int xo, int yo, int zo, int isovalue) {
@@ -54,8 +48,6 @@ namespace March {
         for (int i = 0; i < sizeof(mc_vertices) / sizeof(int); i++) {
             if (getCubePoint(xo, yo, zo, i) > isovalue) {
                 SBI(mc_case, i);
-            } else {
-                CBI(mc_case, i);
             }
         }
 
@@ -101,34 +93,34 @@ namespace March {
 
             // Vertex coordinates
             int p[3] = {
-                    xo + mc_vertices[i][0],
-                    yo + mc_vertices[i][1],
-                    zo + mc_vertices[i][2]
+                    xo + mc_vertices[i][X],
+                    yo + mc_vertices[i][Y],
+                    zo + mc_vertices[i][Z]
             };
 
             // Bounds of the volume
-            int max[3] = {Volume::width, Volume::height, Volume::depth};
+            int max[3] = {Volume::width - 1, Volume::height - 1, Volume::depth - 1};
 
             // Run differencing in isolated fashion for all three axes
             for (int j = 0; j < 3; ++j) {
                 // Multiplier, to select only current axis for differencing
                 int m[3] = {j == 0 ? 1 : 0, j == 1 ? 1 : 0, j == 2 ? 1 : 0};
 
-                if(p[j] > 0 && p[j] < (max[j] - 1)) {
+                if(p[j] > 0 && p[j] < max[j]) {
                     // Central differencing
-                    gradient[i][j] = Volume::getPoint(p[0] + m[0] * d, p[1] + m[1] * d, p[2] + m[2] * d) +
-                            Volume::getPoint(p[0] - m[0] * d, p[1] - m[1] * d, p[2] - m[2] * d);
+                    gradient[i][j] = Volume::getPoint(p[X] + m[X] * d, p[Y] + m[Y] * d, p[Z] + m[Z] * d) +
+                            Volume::getPoint(p[X] - m[X] * d, p[Y] - m[Y] * d, p[Z] - m[Z] * d);
 
                     gradient[i][j] /= (2 * d);
                 } else if(p[j] == 0) {
                     // Forward differencing
-                    gradient[i][j] = (Volume::getPoint(p[0] + m[0] * d, p[1] + m[1] * d, p[2] + m[2] * d) -
-                            Volume::getPoint(p[0],p[1],p[2]))
+                    gradient[i][j] = (Volume::getPoint(p[X] + m[X] * d, p[Y] + m[Y] * d, p[Z] + m[Z] * d) -
+                            Volume::getPoint(p[X],p[Y],p[Z]))
                                      / d;
                 } else {
                     // Backward differencing
-                    gradient[i][j] = (Volume::getPoint(p[0],p[1],p[2]) -
-                            Volume::getPoint(p[0] - m[0] * d, p[1] - m[1] * d, p[2] - m[2] * d))
+                    gradient[i][j] = (Volume::getPoint(p[X],p[Y],p[Z]) -
+                            Volume::getPoint(p[X] - m[X] * d, p[Y] - m[Y] * d, p[Z] - m[Z] * d))
                                      / d;
                 }
             }
@@ -158,6 +150,13 @@ namespace March {
                         zo + mc_vertices[v1][2],
                 };
 
+                float normal[3] = {
+                  // Interpolation between gradients at verteces
+                  linInterp(gradient[v1][0], gradient[v2][0], intersect[edge]),
+                  linInterp(gradient[v1][1], gradient[v2][1], intersect[edge]),
+                  linInterp(gradient[v1][2], gradient[v2][2], intersect[edge]),
+                };
+
                 // position = base cell coordinates + local vertex coordinates
                 // add the computed intersection value to one of the positions
                 for (int k = 0; k < 3; k++) {
@@ -171,14 +170,17 @@ namespace March {
                 switch (j) {
                     case 0:
                         std::copy(point, point + 3, t.p1);
+                        std::copy(normal, normal + 3, t.n1);
                         break;
 
                     case 1:
                         std::copy(point, point + 3, t.p2);
+                        std::copy(normal, normal + 3, t.n2);
                         break;
 
                     case 2:
                         std::copy(point, point + 3, t.p3);
+                        std::copy(normal, normal + 3, t.n3);
                         break;
                 }
             } // Triangle builder - for j
