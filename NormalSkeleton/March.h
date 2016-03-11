@@ -29,6 +29,15 @@ namespace March {
         return (float) (fi - isovalue) / (fi - fj);
     }
 
+    // Only allow numerical types in this template
+    template<
+            typename T,
+            typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type
+    >
+    T linInterp(T i, T j, float offset) {
+        return i * (1 - offset) + j * offset;
+    }
+
     int getCubePoint(int xo, int yo, int zo, int vertex) {
         if (vertex > 7)
             return -1;
@@ -90,29 +99,36 @@ namespace March {
             // Base coordinates
             int b[3] = {xo, yo, zo};
 
+            // Vertex coordinates
+            int p[3] = {
+                    xo + mc_vertices[i][0],
+                    yo + mc_vertices[i][1],
+                    zo + mc_vertices[i][2]
+            };
+
             // Bounds of the volume
             int max[3] = {Volume::width, Volume::height, Volume::depth};
 
+            // Run differencing in isolated fashion for all three axes
             for (int j = 0; j < 3; ++j) {
-                int v = b[i] + mc_vertices[i][j];
+                // Multiplier, to select only current axis for differencing
+                int m[3] = {j == 0 ? 1 : 0, j == 1 ? 1 : 0, j == 2 ? 1 : 0};
 
-                int m[3] = {j == 0, j == 1, j == 2};
-
-                if(v != 0 && v != max[j]) {
+                if(p[j] > 0 && p[j] < (max[j] - 1)) {
                     // Central differencing
-                    gradient[i][j] = Volume::getPoint(xo + m[j] * d, yo + m[j] * d, zo + m[j] * d) +
-                            Volume::getPoint(xo - m[j] * d, yo - m[j] * d, zo - m[j] * d);
+                    gradient[i][j] = Volume::getPoint(p[0] + m[0] * d, p[1] + m[1] * d, p[2] + m[2] * d) +
+                            Volume::getPoint(p[0] - m[0] * d, p[1] - m[1] * d, p[2] - m[2] * d);
 
                     gradient[i][j] /= (2 * d);
-                } else if(v == 0) {
+                } else if(p[j] == 0) {
                     // Forward differencing
-                    gradient[i][j] = (Volume::getPoint(xo + m[j] * d, yo + m[j] * d, zo + m[j] * d) -
-                            Volume::getPoint(xo,yo,zo))
+                    gradient[i][j] = (Volume::getPoint(p[0] + m[0] * d, p[1] + m[1] * d, p[2] + m[2] * d) -
+                            Volume::getPoint(p[0],p[1],p[2]))
                                      / d;
                 } else {
                     // Backward differencing
-                    gradient[i][j] = (Volume::getPoint(xo,yo,zo) -
-                            Volume::getPoint(xo - m[j] * d, yo - m[j] * d, zo - m[j] * d))
+                    gradient[i][j] = (Volume::getPoint(p[0],p[1],p[2]) -
+                            Volume::getPoint(p[0] - m[0] * d, p[1] - m[1] * d, p[2] - m[2] * d))
                                      / d;
                 }
             }
