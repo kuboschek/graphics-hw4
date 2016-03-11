@@ -140,7 +140,7 @@ namespace OpenGLSkeleton {
        glViewport(0, 0, (GLsizei) w, (GLsizei) h);
        glMatrixMode(GL_PROJECTION);
        glLoadIdentity();
-       gluPerspective(60.0, (GLfloat) w/(GLfloat) h, 1.0, 30.0);
+       gluPerspective(60.0, (GLfloat) w/(GLfloat) h, 1.0, 1024.0);
        glMatrixMode(GL_MODELVIEW);
        glLoadIdentity();
    }
