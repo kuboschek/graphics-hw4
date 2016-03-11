@@ -10,6 +10,7 @@ cmake_install.cmake
 CMakeFiles
 
 *.h.gch
+*.o
 Skeleton
 
 *.pvm
@@ -17,3 +18,4 @@ Skeleton
 .idea/
 
 /CMakeLists.txt
+bin/*
