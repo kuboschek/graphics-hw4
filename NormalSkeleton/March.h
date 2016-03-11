@@ -16,6 +16,15 @@
 #define CUTOFF 0.00001
 
 namespace March {
+    bool isEdgeVertex(int x, int y, int z) {
+        return x == Volume::width ||
+               y == Volume::height ||
+               z == Volume::depth ||
+               x == 0 ||
+               y == 0 ||
+               z == 0;
+    }
+
     float calcIntersectionOffset(float isovalue, int fi, int fj) {
         if (fabs(fi - fj) < CUTOFF)
             return 0.5;
@@ -65,6 +74,9 @@ namespace March {
 
         // Offset of the intersection on any of the 12 edges
         float intersect[12] = {0};
+
+        // Gradients at each vertex
+        float gradient[12]
 
         // Iterate through all edges to compute intersection points
         for (int i = 0; i < sizeof(mc_edges[0]) / sizeof(int); i++) {
