@@ -11,12 +11,22 @@
 
 
 float isovalue = 0;
+float lambda = 0.2;
 
 // If true, shifts mesh to be centered around origin
 bool shifting = false;
 
 // If true, negate normals
 bool negating = false;
+
+// Simple point class
+class Point {
+public:
+  int x;
+  int y;
+  int z;
+};
+
 
 // Triangle soup stored here
 std::vector<Triangle> triangles;
@@ -60,12 +70,26 @@ void marchAllTheCubes(float isoval) {
     // Clear old soup -- so inefficient, caching is much better
     triangles.clear();
 
-    // March everything
-    // n^3 -- so what?
+    // Stores which cells have snapped points
+    std::vector<Point> editList;
+
+    // Clean up from last time
+    //Volume::resetSnapVolume();
+
+    // Step 1: Snap points that are close to grid (solution to part a)
     for (unsigned int i = 0; i < Volume::width - 1; i++) { // x
         for (unsigned int j = 0; j < Volume::height - 1; j++) { // y
             for (unsigned int k = 0; k < Volume::depth - 1; k++) { // z
-                March::marchCube(i, j, k, isoval, triangles);
+                March::snapPoints(i, j, k, isoval, lambda);
+            }
+        }
+    }
+
+    // Step 2: Run Marching Cubes with snapped volume data
+    for (unsigned int i = 0; i < Volume::width - 1; i++) { // x
+        for (unsigned int j = 0; j < Volume::height - 1; j++) { // y
+            for (unsigned int k = 0; k < Volume::depth - 1; k++) { // z
+                March::marchCube(i, j, k, isoval, triangles, Volume::getSnapPoint);
             }
         }
     }

@@ -4,5 +4,4 @@
 
 3. Edit scalar data set -> make list of edited cubes
 4. Run original march function on edited data
-5. Run original march function on default data
-6. Move points back using list of cubes that were edited
+6. Move points back using list of cubes that were edited -> run march on flagged cubes (orig. data)

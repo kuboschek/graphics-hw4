@@ -38,7 +38,6 @@ namespace March {
     }
 
     int getMarchCase(int xo, int yo, int zo, int isovalue) {
-        /*
         int mc_case = 0;
 
         // Iterate through all vertices of this cell
@@ -50,27 +49,52 @@ namespace March {
 
         // Clamp max value
         return (mc_case & 0xFF);
-        */
+    }
 
+    // Solution to a)
+    bool snapPoints(int xo, int yo, int zo, float isovalue, float lambda) {
+      // Marching cubes case
+      int mc_case = getMarchCase(xo, yo, zo, isovalue);
 
-        int pos = 0;
-        int Case = 0;
+      // Cube is completely outside / inside the object
+      if (mc_case == 0 || mc_case == 255)
+          return false;
 
-        for(int k = zo; k < zo+2; k++){
-          for(int j = yo; j < yo+2; j++){
-            for(int i = xo; i < xo+2; i++){
-              int value = Volume::getPoint(i,j,k);
-              int isInside = value <= isovalue ? 0 : 1;
-              Case = Case | (isInside << pos++);
-            }
+      // Offset of the intersection on any of the 12 edges
+      float intersect[12] = {0};
+
+      bool edited = false;
+
+      // Iterate through all edges to compute intersection points
+      for (int i = 0; i < 12; i++) {
+          int v0 = mc_edges[i][0];
+          int v1 = mc_edges[i][1];
+
+          int fi = getCubePoint(xo, yo, zo, v0);
+          int fj = getCubePoint(xo, yo, zo, v1);
+
+          intersect[i] = calcIntersectionOffset(isovalue, fi, fj);
+
+          if(intersect[i] > (1 - lambda)) {
+            Volume::setPoint(xo + mc_vertices[v1][0],
+                             yo + mc_vertices[v1][1],
+                             zo + mc_vertices[v1][2],
+                             isovalue);
+            edited = true;
+          } else if(intersect[i] < lambda) {
+            Volume::setPoint(xo + mc_vertices[v0][0],
+                             yo + mc_vertices[v0][1],
+                             zo + mc_vertices[v0][2],
+                             isovalue);
+            edited = true;
           }
-        }
+      }
 
-        return Case;
+      return edited;
     }
 
 
-    void marchCube(int xo, int yo, int zo, float isovalue, std::vector<Triangle> &out) {
+    void marchCube(int xo, int yo, int zo, float isovalue, std::vector<Triangle> &out, unsigned int (*get)(int, int, int)) {
         // Marching cubes case
         int mc_case = getMarchCase(xo, yo, zo, isovalue);
 
