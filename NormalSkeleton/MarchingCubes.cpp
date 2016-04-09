@@ -22,6 +22,11 @@ bool negating = false;
 // Simple point class
 class Point {
 public:
+  Point(int x, int y, int z) {
+    this->x = x;
+    this->y = y;
+    this->z = z;
+  }
   int x;
   int y;
   int z;
@@ -74,13 +79,15 @@ void marchAllTheCubes(float isoval) {
     std::vector<Point> editList;
 
     // Clean up from last time
-    //Volume::resetSnapVolume();
+    Volume::resetSnapVolume();
 
     // Step 1: Snap points that are close to grid (solution to part a)
     for (unsigned int i = 0; i < Volume::width - 1; i++) { // x
         for (unsigned int j = 0; j < Volume::height - 1; j++) { // y
             for (unsigned int k = 0; k < Volume::depth - 1; k++) { // z
-                March::snapPoints(i, j, k, isoval, lambda);
+                if(March::snapPoints(i, j, k, isoval, lambda)) {
+                  editList.push_back(Point(i, j, k));
+                }
             }
         }
     }
@@ -92,6 +99,11 @@ void marchAllTheCubes(float isoval) {
                 March::marchCube(i, j, k, isoval, triangles, Volume::getSnapPoint);
             }
         }
+    }
+
+    // Step 3: Move isosurface points that lie on grid vertices back to orig. place
+    for(Point &cellOrig : editList) {
+
     }
 
     if(shifting) {
@@ -110,7 +122,7 @@ void marchAllTheCubes(float isoval) {
         }
     }
 
-
+    // Step 4: Rendering the isosurface. (solution to d)
     OpenGLSkeleton::SetSurface(&triangles);
 }
 
