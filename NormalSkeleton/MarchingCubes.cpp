@@ -101,10 +101,215 @@ void marchAllTheCubes(float isoval) {
         }
     }
 
+    // THIS IMPLEMENTATION GENERATES A LOT OF COMPILE ERRORS; SIMPLY SAID, IT DOESN'T YET WORK
     // Step 3: Move isosurface points that lie on grid vertices back to orig. place
-    for(Point &cellOrig : editList) {
+    /*
+    for(Triangle &tri : triangles) {
+      double p [3] = {0};
+      double epsilon = 0.0001;
 
+      std::vector<Triangle> cubes;
+
+      cubes.clear();
+      // Get original MC points if we have a grid-aligned point in this triangle
+      if(modf(tri.p1[0], &p[0]) < epsilon ||
+         modf(tri.p1[1], &p[1]) < epsilon ||
+         modf(tri.p1[2], &p[2]) < epsilon) {
+           March::marchCube(p[0], p[1], p[2], isoval, cubes, Volume::getPoint);
+
+         float min = 1.0; // Essentially any other value is going to be lower
+         int i, idx = 0, p = 0;
+
+         std::vector<Triangle>::iterator it;
+
+         for(it = cubes.begin(); it < cubes.end(); it++, i++) {
+           float d1 = sqrt(pow(it->p1[0] - p[0], 2) +
+                           pow(it->p1[1] - p[1], 2) +
+                           pow(it->p1[2] - p[2], 2));
+
+           float d2 = sqrt(pow(it->p2[0] - p[0], 2) +
+                           pow(it->p2[1] - p[1], 2) +
+                           pow(it->p2[2] - p[2], 2));
+
+           float d3 = sqrt(pow(it->p3[0] - p[0], 2) +
+                           pow(it->p3[1] - p[1], 2) +
+                           pow(it->p3[2] - p[2], 2));
+
+           if(d1 < min) {
+              idx = i;
+              min = d1;
+              p = 1;
+           }
+
+           if(d2 < min) {
+              idx = i;
+              min = d2;
+              p = 2;
+           }
+
+           if(d3 < min) {
+              idx = i;
+              min = d3;
+              p = 3;
+           }
+         }
+
+         switch (p) {
+           case 1:
+            p[0] = cubes[idx].p1[0];
+            p[1] = cubes[idx].p1[1];
+            p[2] = cubes[idx].p1[2];
+            break;
+
+          case 2:
+           p[0] = cubes[idx].p2[0];
+           p[1] = cubes[idx].p2[1];
+           p[2] = cubes[idx].p2[2];
+           break;
+
+           case 3:
+            p[0] = cubes[idx].p3[0];
+            p[1] = cubes[idx].p3[1];
+            p[2] = cubes[idx].p3[2];
+            break;
+         }
+      }
+
+      cubes.clear();
+      if(modf(tri.p2[0], &p[0]) < epsilon ||
+         modf(tri.p2[1], &p[1]) < epsilon ||
+         modf(tri.p2[2], &p[2]) < epsilon) {
+           March::marchCube(p[0], p[1], p[2], isoval, cubes, Volume::getPoint);
+
+           float min = 1.0; // Essentially any other value is going to be lower
+           int i, idx = 0, p = 0;
+
+           std::vector<Triangle>::iterator it;
+
+           for(it = cubes.begin(); it < cubes.end(); it++, i++) {
+             float d1 = sqrt(pow(it->p1[0] - p[0], 2) +
+                             pow(it->p1[1] - p[1], 2) +
+                             pow(it->p1[2] - p[2], 2));
+
+             float d2 = sqrt(pow(it->p2[0] - p[0], 2) +
+                             pow(it->p2[1] - p[1], 2) +
+                             pow(it->p2[2] - p[2], 2));
+
+             float d3 = sqrt(pow(it->p3[0] - p[0], 2) +
+                             pow(it->p3[1] - p[1], 2) +
+                             pow(it->p3[2] - p[2], 2));
+
+             if(d1 < min) {
+                idx = i;
+                min = d1;
+                p = 1;
+             }
+
+             if(d2 < min) {
+                idx = i;
+                min = d2;
+                p = 2;
+             }
+
+             if(d3 < min) {
+                idx = i;
+                min = d3;
+                p = 3;
+             }
+           }
+
+           switch (p) {
+             case 1:
+              p[0] = cubes[idx].p1[0];
+              p[1] = cubes[idx].p1[1];
+              p[2] = cubes[idx].p1[2];
+              break;
+
+            case 2:
+             p[0] = cubes[idx].p2[0];
+             p[1] = cubes[idx].p2[1];
+             p[2] = cubes[idx].p2[2];
+             break;
+
+             case 3:
+              p[0] = cubes[idx].p3[0];
+              p[1] = cubes[idx].p3[1];
+              p[2] = cubes[idx].p3[2];
+              break;
+           }
+        }
+      }
+
+      // TODO Same as above
+
+      cubes.clear();
+      if(modf(tri.p3[0], &p[0]) < epsilon ||
+         modf(tri.p3[1], &p[1]) < epsilon ||
+         modf(tri.p3[2], &p[2]) < epsilon) {
+           March::marchCube(p[0], p[1], p[2], isoval, cubes, Volume::getPoint);
+
+           float min = 1.0; // Essentially any other value is going to be lower
+           int i, idx = 0, p = 0;
+
+           std::vector<Triangle>::iterator it;
+
+           for(it = cubes.begin(); it < cubes.end(); it++, i++) {
+             float d1 = sqrt(pow(it->p1[0] - p[0], 2) +
+                             pow(it->p1[1] - p[1], 2) +
+                             pow(it->p1[2] - p[2], 2));
+
+             float d2 = sqrt(pow(it->p2[0] - p[0], 2) +
+                             pow(it->p2[1] - p[1], 2) +
+                             pow(it->p2[2] - p[2], 2));
+
+             float d3 = sqrt(pow(it->p3[0] - p[0], 2) +
+                             pow(it->p3[1] - p[1], 2) +
+                             pow(it->p3[2] - p[2], 2));
+
+             if(d1 < min) {
+                idx = i;
+                min = d1;
+                p = 1;
+             }
+
+             if(d2 < min) {
+                idx = i;
+                min = d2;
+                p = 2;
+             }
+
+             if(d3 < min) {
+                idx = i;
+                min = d3;
+                p = 3;
+             }
+           }
+
+           switch (p) {
+             case 1:
+              p[0] = cubes[idx].p1[0];
+              p[1] = cubes[idx].p1[1];
+              p[2] = cubes[idx].p1[2];
+              break;
+
+            case 2:
+             p[0] = cubes[idx].p2[0];
+             p[1] = cubes[idx].p2[1];
+             p[2] = cubes[idx].p2[2];
+             break;
+
+             case 3:
+              p[0] = cubes[idx].p3[0];
+              p[1] = cubes[idx].p3[1];
+              p[2] = cubes[idx].p3[2];
+              break;
+           }
+        }
+      }
+
+      // TODO Same as above
     }
+    */
 
     if(shifting) {
         // Offset triangles
